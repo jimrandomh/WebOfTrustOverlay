@@ -1,0 +1,26 @@
+{
+	"name": "Web of Trust Overlay",
+	"version": "1.0",
+	"description": "Adds web-of-trust authenticity badges to websites.",
+	"manifest_version": 3,
+	"minimum_chrome_version": "90.0.0.0",
+	"offline_enabled": false,
+
+	"action": {
+		"default_title": "Web of Trust Overlay"
+	},
+	"options_page": "options.html",
+	"background" : {
+		"service_worker": "background.js"
+	},
+	"content_scripts": [
+	  {
+	    "matches": ["<all_urls>"],
+	    "js": ["content.js"]
+	  }
+	],
+	"permissions": [
+		"activeTab", "scripting"
+	]
+}
+

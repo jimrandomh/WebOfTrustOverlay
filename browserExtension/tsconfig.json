@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["es2019", "dom"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "rootDir": "src",
+    "module": "commonjs",
+    "target": "es6",
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "build", ".git"]
+}
+

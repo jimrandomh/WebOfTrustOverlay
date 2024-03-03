@@ -1,0 +1,14 @@
+Web of Trust Overlay
+====================
+
+This is an (unfinished prototype) browser extension that adds Web of
+Trust-based indicators for identifying accounts that are definitely human and
+not bots.
+
+To run it (in development mode):
+ * cd into `browserExtension`, run `yarn install` and `yarn watch`. Note that
+   while `yarn watch` will rebuild automatically, you will still need to
+   prompt Chrome to refresh the extension.
+ * Add the extension to Chrome by going to chrome://extensions, clicking "Load
+   unpacked", and adding browserExtension/build as an unpacked extension.
+
