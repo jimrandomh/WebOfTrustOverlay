@@ -35,21 +35,30 @@ const siteConfigs: Record<string,SiteConfig> = {
   },
 }
 
+const badgeStyles = `
+  .badgeIcon {
+    position: relative;
+    cursor: pointer;
+    color: #333;
+    font-size: 12px;
+  }
+`;
+
 function createBadgeElement(username: string): Element {
   const state = { isOpen: false };
   const root = document.createElement("span");
   root.setAttribute("class", "webOfTrustOverlayBadge");
-  root.setAttribute("style", cssObjectToStyleAttribute({
-    position: "relative",
-    cursor: "pointer",
-    color: "#333",
-  }));
-  root.innerText = '[]';
-  root.onclick = () => {
+  
+  const badgeIcon = document.createElement("span");
+  badgeIcon.setAttribute("class", "badgeIcon");
+  root.append(wrapInStyleReset(badgeIcon, badgeStyles));
+  
+  badgeIcon.innerText = '[ ]';
+  badgeIcon.onclick = () => {
     if (state.isOpen) return;
     state.isOpen = true;
     const menu = createBadgeMenu(username);
-    root.append(menu);
+    badgeIcon.append(menu);
 
     const clickaway = createClickawayListener(() => {
       state.isOpen = false;
@@ -60,19 +69,30 @@ function createBadgeElement(username: string): Element {
   return root;
 }
 
+const badgeMenuStyles = `
+  .badgeMenu {
+    z-index: 2;
+    position: absolute;
+    left: 8px;
+    top: 0;
+    background: #cccccc;
+    border: 1px solid black;
+    min-width: 100px;
+    padding: 6px;
+  }
+  .menuItem {
+    padding: 4px;
+    cursor: pointer;
+  }
+  .menuItem:hover {
+    background: #00c;
+    color: white;
+  }
+`;
+
 function createBadgeMenu(username: string): Element {
   const root = document.createElement("span");
-
-  root.setAttribute("style", cssObjectToStyleAttribute({
-    "z-index": "2",
-    position: "absolute",
-    left: "8px",
-    top: "0",
-    background: "#cccccc",
-    border: "1px solid black",
-    "min-width": "100px",
-    padding: "6px",
-  }));
+  root.setAttribute("class", "badgeMenu");
   
   const menuHeader = document.createElement("div");
   menuHeader.innerText = username;
@@ -85,12 +105,11 @@ function createBadgeMenu(username: string): Element {
     label: "Report as Bot"
   }));
   
-  return wrapInStyleReset(root);
+  return wrapInStyleReset(root, badgeMenuStyles);
 }
 
 function createClickawayListener(onClick: ()=>void): Element {
   const clickawayListener = document.createElement("div");
-  document.body.append(clickawayListener);
   clickawayListener.setAttribute("style", cssObjectToStyleAttribute({
     position: "fixed",
     "z-index": "1",
@@ -100,7 +119,9 @@ function createClickawayListener(onClick: ()=>void): Element {
     height: "100%",
   }));
   clickawayListener.onclick = onClick;
-  return clickawayListener;
+  const wrapped = wrapInStyleReset(clickawayListener)
+  document.body.append(wrapped);
+  return wrapped;
 }
 
 function createMenuItem({label}: {
@@ -108,9 +129,7 @@ function createMenuItem({label}: {
 }): Element {
   const menuItem = document.createElement("div");
   menuItem.innerText = label;
-  menuItem.setAttribute("style", cssObjectToStyleAttribute({
-    padding: "4px",
-  }));
+  menuItem.setAttribute("class", "menuItem");
   return menuItem;
 }
 

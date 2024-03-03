@@ -3,6 +3,7 @@
  * This code is limited to *core browser APIs*, ie *no libraries*, particularly
  * not React, jQuery, etc.
  */
+//#
 
 /**
  * Wrap an element in a set of wrappers that isolates it from any stylesheets
@@ -11,11 +12,18 @@
  * applies an `all: initial` CSS style, which prevents inheritance from elements
  * above it in the DOM.
  */
-export function wrapInStyleReset(el: Element): Element {
+export function wrapInStyleReset(el: Element, styles?: string): Element {
   const wrapper = document.createElement("span");
   const shadowRoot = wrapper.attachShadow({mode: "closed"});
   const innerWrapper = document.createElement("span");
   innerWrapper.setAttribute("style", "all: initial");
+  
+  if (styles) {
+    const styleNode = document.createElement("style");
+    styleNode.innerText = styles;
+    innerWrapper.append(styleNode);
+  }
+  
   shadowRoot.append(innerWrapper);
   innerWrapper.append(el);
   return wrapper;
