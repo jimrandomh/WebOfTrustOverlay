@@ -103,11 +103,20 @@ const badgeMenuStyles = `
     background: #cccccc;
     border: 1px solid black;
     min-width: 100px;
-    padding: 6px;
+    font-family: sans-serif;
+  }
+  .menuHeader {
+    padding-top: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 14px;
+    background: #999;
+    border-bottom: 1px solid #777;
   }
   .menuItem {
     padding: 4px;
     cursor: pointer;
+    font-size: 12px;
   }
   .menuItem:hover {
     background: #00c;
