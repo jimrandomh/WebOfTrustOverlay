@@ -3,7 +3,12 @@ Web of Trust Overlay
 
 This is an (unfinished prototype) browser extension that adds Web of
 Trust-based indicators for identifying accounts that are definitely human and
-not bots.
+not bots. It has integrations with sites (currently HN and Twitter) to find
+usernames on the page, and adds an icon next to each username to indicate
+whether it's a human or a bot. In the future, this will be based on a Web of
+Trust model, where you can publicly vouch for accounts. At present, on the
+other hand, this has no backend at all, so you can vouch/report accounts to
+demo the UI, but this will be immediately forgotten and not set anywhere.
 
 To run it (in development mode):
  * cd into `browserExtension`, run `yarn install` and `yarn watch`. Note that
