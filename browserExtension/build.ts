@@ -42,5 +42,24 @@ function copyAndWatch(source: string, dest: string) {
   estrella.watch(source, performCopy);
 }
 
-copyAndWatch("res/options.html", `${outputDir}/options.html`);
-copyAndWatch("res/manifest.json", `${outputDir}/manifest.json`);
+function listFilesRecursive(dir: string): string[] {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const files: string[] = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      const subFiles = listFilesRecursive(fullPath);
+      files.push(...subFiles);
+    } else if (entry.isFile()) {
+      files.push(fullPath);
+    }
+  }
+
+  return files;
+}
+
+for (let filename of listFilesRecursive("res")) {
+  copyAndWatch(filename, `${outputDir}/${path.relative("res", filename)}`);
+}

@@ -1,7 +1,17 @@
 /**
  * Web of Trust Overlay content script
  */
-import { cssObjectToStyleAttribute, elementHasClass, filterNonnull, getElementsByClassName, getElementsByCssSelector, htmlCollectionToArray, insertElementAfter, wrapInStyleReset } from './domUtil';
+import { cssObjectToStyleAttribute, elementHasClass, filterNonnull, getElementsByClassName, getElementsByCssSelector, htmlCollectionToArray, insertElementAfter, trustedHtmlToElement, wrapInStyleReset } from './domUtil';
+
+declare global {
+  var chrome: any
+}
+
+const images = {
+  verified: chrome.runtime.getURL('images/noun-checkmark-5487557-007435.svg'),
+  knownBot: chrome.runtime.getURL('images/noun-bot-3105585-9B9B9B.svg'),
+  unknown: chrome.runtime.getURL('images/noun-question-1015737-9B9B9B.svg'),
+};
 
 type TimeToRecheckForUsernames = "onLoad"|"onInterval";
 
@@ -42,29 +52,44 @@ const badgeStyles = `
     color: #333;
     font-size: 12px;
   }
+  .badgeIcon img {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    margin-left: 4px;
+    position: relative;
+    top: -2px;
+  }
 `;
 
 function createBadgeElement(username: string): Element {
   const state = { isOpen: false };
-  const root = document.createElement("span");
-  root.setAttribute("class", "webOfTrustOverlayBadge");
-  
-  const badgeIcon = document.createElement("span");
-  badgeIcon.setAttribute("class", "badgeIcon");
+  const root = trustedHtmlToElement(`
+    <span class="webOfTrustOverlayBadge"></span>
+  `);
+  const imageUrl = images.unknown;
+  const badgeIcon = trustedHtmlToElement(`
+    <span class="badgeIcon"><img src="${imageUrl}"></span>
+  `);
   root.append(wrapInStyleReset(badgeIcon, badgeStyles));
   
-  badgeIcon.innerText = '[ ]';
   badgeIcon.onclick = () => {
     if (state.isOpen) return;
     state.isOpen = true;
-    const menu = createBadgeMenu(username);
-    badgeIcon.append(menu);
-
-    const clickaway = createClickawayListener(() => {
+    function closeMenu() {
       state.isOpen = false;
       clickaway.remove();
       menu.remove();
+    }
+
+    const menu = createBadgeMenu({
+      username,
+      iconElement: badgeIcon,
+      onClose: closeMenu,
     });
+    badgeIcon.append(menu);
+    
+    const clickaway = createClickawayListener(closeMenu);
   }
   return root;
 }
@@ -90,19 +115,34 @@ const badgeMenuStyles = `
   }
 `;
 
-function createBadgeMenu(username: string): Element {
-  const root = document.createElement("span");
-  root.setAttribute("class", "badgeMenu");
-  
-  const menuHeader = document.createElement("div");
+function createBadgeMenu({username, iconElement, onClose}: {
+  username: string,
+  iconElement: Element,
+  onClose: ()=>void,
+}): Element {
+  const root = trustedHtmlToElement(`
+    <span class="badgeMenu">
+      <div class="menuHeader"></div>
+    </span>
+  `);
+  const menuHeader = root.getElementsByClassName("menuHeader")[0] as HTMLDivElement;
   menuHeader.innerText = username;
-  root.append(menuHeader);
 
   root.append(createMenuItem({
-    label: "Vouch Human"
+    label: "Vouch Human",
+    onClick: (ev) => {
+      iconElement.getElementsByTagName("img")?.[0]?.setAttribute("src", images.verified);
+      onClose();
+      ev.stopPropagation();
+    },
   }));
   root.append(createMenuItem({
-    label: "Report as Bot"
+    label: "Report as Bot",
+    onClick: (ev) => {
+      iconElement.getElementsByTagName("img")?.[0]?.setAttribute("src", images.knownBot);
+      onClose();
+      ev.stopPropagation();
+    },
   }));
   
   return wrapInStyleReset(root, badgeMenuStyles);
@@ -124,12 +164,15 @@ function createClickawayListener(onClick: ()=>void): Element {
   return wrapped;
 }
 
-function createMenuItem({label}: {
-  label: string
+function createMenuItem({label, onClick}: {
+  label: string,
+  onClick: (ev: MouseEvent)=>void,
 }): Element {
-  const menuItem = document.createElement("div");
+  const menuItem = trustedHtmlToElement(`
+    <div class="menuItem"></div>
+  `);
   menuItem.innerText = label;
-  menuItem.setAttribute("class", "menuItem");
+  menuItem.onclick = onClick;
   return menuItem;
 }
 

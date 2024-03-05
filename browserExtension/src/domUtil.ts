@@ -6,6 +6,27 @@
 //#
 
 /**
+ * Given a (trusted) HTML string, construct an element tree. (Don't pass
+ * dynamically constructed strings with untrusted data, that would be XSS!)
+ * Works by constructing a temporary element and setting its innerHTML.
+ */
+export function trustedHtmlToElement(html: string): HTMLElement {
+  // Create a temporary container element
+  const container = document.createElement('div');
+
+  // Set the innerHTML of the container to the provided HTML
+  container.innerHTML = html;
+
+  // Check if the container has a single root element
+  if (container.childElementCount !== 1) {
+    throw new Error('The provided HTML must have a single root element.');
+  }
+
+  // Return the single root element
+  return container.firstElementChild! as HTMLElement;
+}
+
+/**
  * Wrap an element in a set of wrappers that isolates it from any stylesheets
  * in the surrounding page. Uses a Web Component to set up a shadow DOM, which
  * prevents styles from having their selectors match anything inside; and
